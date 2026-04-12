@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // Assume backend port 5000
+  baseURL: import.meta.env.VITE_API_URL || "https://backend-crm-l6g0.onrender.com/api",
 });
 
 // Add a request interceptor to append the JWT
