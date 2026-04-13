@@ -11,6 +11,7 @@ import Settings from "./pages/Settings";
 import Agreements from "./pages/Agreements";
 import InvoiceView from "./pages/InvoiceView";
 import AgreementView from "./pages/AgreementView";
+import Projects from "./pages/Projects";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/leads" element={<Leads />} />
+            <Route path="/projects" element={<Projects />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/agreements" element={<Agreements />} />
 

@@ -7,7 +7,8 @@ import {
   Settings,
   Bell,
   CreditCard,
-  FileSignature
+  FileSignature,
+  Briefcase
 } from "lucide-react";
 
 import logo from '../../public/tdsLogo.png'
@@ -25,6 +26,7 @@ const DashboardLayout = () => {
   const navLinks = [
     { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
     { name: "Clients", path: "/leads", icon: Users },
+    { name: "Projects", path: "/projects", icon: Briefcase },
     { name: "Finance", path: "/finance", icon: CreditCard },
     { name: "Agreements", path: "/agreements", icon: FileSignature },
     ...(user?.role === "superadmin" ? [{ name: "Settings", path: "/settings", icon: Settings }] : []),

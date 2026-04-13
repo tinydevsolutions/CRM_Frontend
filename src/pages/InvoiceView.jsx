@@ -63,8 +63,8 @@ export default function InvoiceView() {
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold print-heading">Tiny Dev Solutions</h2>
-            <p className="print-text text-sm mt-1">123 Tech Park, Suite 400</p>
-            <p className="print-text text-sm">Innovation City, IN 10001</p>
+            <p className="print-text text-sm mt-1">35/4 Sri Ganesh Apartment</p>
+            <p className="print-text text-sm">Kerala Samaj Pollachi</p>
             <div className="mt-3 inline-block border print-border-light px-3 py-1 rounded text-xs font-bold print-text">
               Udyam No: UDYAM-TN-03-03170841
             </div>

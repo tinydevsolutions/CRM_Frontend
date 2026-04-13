@@ -68,8 +68,8 @@ export default function AgreementView() {
             <div className="flex-1 p-6 border print-border-light rounded-sm">
               <h3 className="font-bold uppercase text-xs tracking-wider mb-2 print-heading">Service Provider</h3>
               <p className="font-bold text-base print-heading">Tiny Dev Solutions</p>
-              <p className="print-text">123 Tech Park, Suite 400</p>
-              <p className="print-text">Innovation City, IN 10001</p>
+              <p className="print-text">35/4 Sri Ganesh Apartment</p>
+              <p className="print-text">Kerala Samaj Pollachi</p>
               <p className="mt-2 text-xs font-bold print-heading">MSME Registered</p>
             </div>
             <div className="flex-1 p-6 border print-border-light rounded-sm">
