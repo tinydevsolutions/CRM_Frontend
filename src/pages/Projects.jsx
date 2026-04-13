@@ -64,15 +64,13 @@ export default function Projects() {
     }
   };
 
-  const executeUpdate = async (password = null) => {
+  const executeUpdate = async () => {
     try {
-      const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-      const { data } = await api.put(`/projects/${editingId}`, formData, config);
+      const { data } = await api.put(`/projects/${editingId}`, formData);
       const newProjects = projects.map(p => p._id === editingId ? data : p);
       setProjects(newProjects);
       calculateStats(newProjects);
       closeModal();
-      setIsSuperGateOpen(false);
     } catch (error) {
       setAlertConfig({ isOpen: true, message: error.response?.data?.message || "Failed to update project" });
     }
@@ -81,7 +79,7 @@ export default function Projects() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingId) {
-      triggerSecuredAction(executeUpdate);
+      executeUpdate();
     } else {
       try {
         const { data } = await api.post("/projects", formData);
@@ -340,7 +338,7 @@ export default function Projects() {
         isOpen={isSuperGateOpen}
         onClose={() => setIsSuperGateOpen(false)}
         onSubmit={(password) => pendingAction && pendingAction(password)}
-        targetActionLabel="Modifying or deleting a project phase"
+        targetActionLabel="deleting a project phase"
       />
       
       <AlertModal 

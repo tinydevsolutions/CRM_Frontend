@@ -108,6 +108,44 @@ export default function InvoiceView() {
           </tbody>
         </table>
 
+        {/* Master 50/50 Split Schedule */}
+        {invoice.splitPayment && (
+          <div className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h3 className="text-sm font-bold print-heading uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="w-8 h-[2px] bg-brand-500"></span>
+              Payment Schedule Breakdown
+            </h3>
+            <div className="grid grid-cols-2 gap-6">
+              <div className={`p-5 border-2 rounded-xl transition-all ${amountPaid >= (invoice.amount / 2) ? 'border-emerald-500 bg-emerald-50/30' : 'border-zinc-200 bg-zinc-50'}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-xs font-black uppercase tracking-tighter text-zinc-500">Milestone 01</span>
+                  {amountPaid >= (invoice.amount / 2) ? (
+                    <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold uppercase">Paid</span>
+                  ) : (
+                    <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold uppercase">Pending</span>
+                  )}
+                </div>
+                <p className="font-bold print-heading">Project Advance (50%)</p>
+                <p className="text-xl font-black mt-1 print-heading">{formatCurrency(invoice.amount / 2)}</p>
+              </div>
+
+              <div className={`p-5 border-2 rounded-xl transition-all ${amountPaid >= invoice.amount ? 'border-emerald-500 bg-emerald-50/30' : 'border-zinc-200 bg-zinc-50'}`}>
+                <div className="flex justify-between items-start mb-2">
+                   <span className="text-xs font-black uppercase tracking-tighter text-zinc-500">Milestone 02</span>
+                   {amountPaid >= invoice.amount ? (
+                    <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold uppercase">Settled</span>
+                  ) : (
+                    <span className="text-[10px] bg-zinc-400 text-white px-2 py-0.5 rounded-full font-bold uppercase">Upcoming</span>
+                  )}
+                </div>
+                <p className="font-bold print-heading">Final Settlement (50%)</p>
+                <p className="text-xl font-black mt-1 print-heading">{formatCurrency(invoice.amount / 2)}</p>
+              </div>
+            </div>
+            <p className="text-[10px] text-zinc-400 mt-4 italic">* Milestones are updated automatically upon payment verification by Tiny Dev Solutions finance desk.</p>
+          </div>
+        )}
+
         <div className="flex justify-end pt-6 border-t-2 print-border-dark">
           <div className="w-2/3 p-4">
             <div className="flex justify-between items-center mb-2">

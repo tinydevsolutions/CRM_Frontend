@@ -49,13 +49,11 @@ export default function Leads() {
     }
   };
 
-  const executeUpdate = async (password = null) => {
+  const executeUpdate = async () => {
     try {
-      const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-      const { data } = await api.put(`/leads/${editingId}`, formData, config);
+      const { data } = await api.put(`/leads/${editingId}`, formData);
       setLeads(leads.map(l => l._id === editingId ? data : l));
       closeModal();
-      setIsSuperGateOpen(false);
     } catch (error) {
       setAlertConfig({ isOpen: true, message: error.response?.data?.message || "Failed to update client" });
     }
@@ -64,7 +62,7 @@ export default function Leads() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingId) {
-      triggerSecuredAction(executeUpdate);
+      executeUpdate();
     } else {
       try {
         const { data } = await api.post("/leads", formData);
@@ -76,17 +74,13 @@ export default function Leads() {
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    triggerSecuredAction(async (password = null) => {
-      try {
-        const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-        const { data } = await api.put(`/leads/${id}`, { status: newStatus }, config);
-        setLeads(leads.map(l => l._id === id ? data : l));
-        setIsSuperGateOpen(false);
-      } catch (err) {
-        setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update status" });
-      }
-    });
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const { data } = await api.put(`/leads/${id}`, { status: newStatus });
+      setLeads(leads.map(l => l._id === id ? data : l));
+    } catch (err) {
+      setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update status" });
+    }
   };
 
   const confirmDelete = (id) => {
@@ -324,7 +318,7 @@ export default function Leads() {
         isOpen={isSuperGateOpen}
         onClose={() => setIsSuperGateOpen(false)}
         onSubmit={(password) => pendingAction && pendingAction(password)}
-        targetActionLabel="Modifying or deleting a client"
+        targetActionLabel="deleting a client"
       />
       
       <AlertModal 

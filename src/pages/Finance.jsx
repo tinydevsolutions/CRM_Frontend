@@ -14,8 +14,8 @@ export default function Finance() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingInvoiceId, setEditingInvoiceId] = useState(null);
   
-  const [formData, setFormData] = useState({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "" });
-  const [editFormData, setEditFormData] = useState({ id: "", amountPaid: "" });
+  const [formData, setFormData] = useState({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "", splitPayment: false });
+  const [editFormData, setEditFormData] = useState({ id: "", amountPaid: "", totalAmount: 0, isSplit: false });
   
   const [stats, setStats] = useState({ collected: 0, outstanding: 0, overdue: 0 });
 
@@ -77,17 +77,15 @@ export default function Finance() {
     }
   };
 
-  const executeUpdateInvoice = async (password = null) => {
+  const executeUpdateInvoice = async () => {
     try {
-      const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-      const { data } = await api.put(`/finance/${editingInvoiceId}`, formData, config);
+      const { data } = await api.put(`/finance/${editingInvoiceId}`, formData);
       const newInvoices = invoices.map(i => i._id === editingInvoiceId ? data : i);
       setInvoices(newInvoices);
       calculateStats(newInvoices);
       setIsModalOpen(false);
       setEditingInvoiceId(null);
       setFormData({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "" });
-      setIsSuperGateOpen(false);
     } catch (error) {
       setAlertConfig({ isOpen: true, message: error.response?.data?.message || "Failed to update invoice" });
     }
@@ -96,7 +94,7 @@ export default function Finance() {
   const handleCreateInvoice = async (e) => {
     e.preventDefault();
     if (editingInvoiceId) {
-      triggerSecuredAction(executeUpdateInvoice);
+      executeUpdateInvoice();
     } else {
       try {
         const { data } = await api.post("/finance", formData);
@@ -105,7 +103,7 @@ export default function Finance() {
         calculateStats(newInvoices);
         setIsModalOpen(false);
         setEditingInvoiceId(null);
-        setFormData({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "" });
+        setFormData({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "", splitPayment: false });
       } catch (error) {
         setAlertConfig({ isOpen: true, message: "Failed to create invoice" });
       }
@@ -119,11 +117,12 @@ export default function Finance() {
         amount: inv.amount, 
         amountPaid: inv.amountPaid || 0,
         description: inv.description, 
-        dueDate: new Date(inv.dueDate).toISOString().split('T')[0] 
+        dueDate: new Date(inv.dueDate).toISOString().split('T')[0],
+        splitPayment: inv.splitPayment || false
       });
       setEditingInvoiceId(inv._id);
     } else {
-      setFormData({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "" });
+      setFormData({ client: "", amount: "", amountPaid: "0", description: "", dueDate: "", splitPayment: false });
       setEditingInvoiceId(null);
     }
     setIsModalOpen(true);
@@ -157,40 +156,37 @@ export default function Finance() {
   };
 
   const openEditModal = (inv) => {
-    setEditFormData({ id: inv._id, amountPaid: inv.amountPaid || 0 });
+    setEditFormData({ 
+      id: inv._id, 
+      amountPaid: inv.amountPaid || 0,
+      totalAmount: inv.amount,
+      isSplit: inv.splitPayment
+    });
     setIsEditModalOpen(true);
   };
 
-  const handleUpdatePayment = (e) => {
+  const handleUpdatePayment = async (e) => {
     e.preventDefault();
-    triggerSecuredAction(async (password = null) => {
-      try {
-        const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-        const { data } = await api.put(`/finance/${editFormData.id}`, { amountPaid: Number(editFormData.amountPaid) }, config);
-        const newInvoices = invoices.map(inv => inv._id === editFormData.id ? data : inv);
-        setInvoices(newInvoices);
-        calculateStats(newInvoices);
-        setIsEditModalOpen(false);
-        setIsSuperGateOpen(false);
-      } catch (err) {
-        setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update payment" });
-      }
-    });
+    try {
+      const { data } = await api.put(`/finance/${editFormData.id}`, { amountPaid: Number(editFormData.amountPaid) });
+      const newInvoices = invoices.map(inv => inv._id === editFormData.id ? data : inv);
+      setInvoices(newInvoices);
+      calculateStats(newInvoices);
+      setIsEditModalOpen(false);
+    } catch (err) {
+      setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update payment" });
+    }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    triggerSecuredAction(async (password = null) => {
-      try {
-        const config = password ? { headers: { 'x-superadmin-password': password } } : {};
-        const { data } = await api.put(`/finance/${id}`, { status: newStatus }, config);
-        const newInvoices = invoices.map(inv => inv._id === id ? data : inv);
-        setInvoices(newInvoices);
-        calculateStats(newInvoices);
-        setIsSuperGateOpen(false);
-      } catch (err) {
-        setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update status" });
-      }
-    });
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const { data } = await api.put(`/finance/${id}`, { status: newStatus });
+      const newInvoices = invoices.map(inv => inv._id === id ? data : inv);
+      setInvoices(newInvoices);
+      calculateStats(newInvoices);
+    } catch (err) {
+      setAlertConfig({ isOpen: true, message: err.response?.data?.message || "Failed to update status" });
+    }
   };
 
   const formatCurrency = (val) => {
@@ -362,6 +358,20 @@ export default function Finance() {
                  <label className="block text-sm font-medium text-zinc-400 mb-1">Due Date</label>
                  <input required type="date" name="dueDate" value={formData.dueDate} onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:border-brand-500 outline-none invert dark:invert-0" />
               </div>
+
+              <div className="flex items-center gap-3 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl">
+                <input 
+                  type="checkbox" 
+                  id="splitPayment"
+                  name="splitPayment"
+                  checked={formData.splitPayment}
+                  onChange={(e) => setFormData({ ...formData, splitPayment: e.target.checked })}
+                  className="w-4 h-4 rounded border-zinc-800 text-brand-500 focus:ring-brand-500 bg-zinc-900" 
+                />
+                <label htmlFor="splitPayment" className="text-sm font-medium text-zinc-300 cursor-pointer">
+                  Standard 50/50 Payment Split Schedule
+                </label>
+              </div>
               
               <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-zinc-800">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">Cancel</button>
@@ -381,10 +391,29 @@ export default function Finance() {
             <form onSubmit={handleUpdatePayment} className="space-y-4">
               <div>
                  <label className="block text-sm font-medium text-zinc-400 mb-1">Amount Paid (₹)</label>
-                 <input required type="number" step="0.01" value={editFormData.amountPaid} onChange={(e) => setEditFormData({...editFormData, amountPaid: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-2xl font-bold focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none text-green-400" placeholder="0.00" />
+                 <input required type="number" step="0.01" value={editFormData.amountPaid} onChange={(e) => setEditFormData({...editFormData, amountPaid: e.target.value})} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-4 text-3xl font-bold focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none text-green-400 transition-all mb-4" placeholder="0.00" />
+                 
+                 <div className="flex flex-wrap gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setEditFormData({ ...editFormData, amountPaid: editFormData.totalAmount })}
+                      className="flex-1 px-3 py-2 text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-all uppercase tracking-wider"
+                    >
+                      Full Settlement (₹{editFormData.totalAmount})
+                    </button>
+                    {editFormData.isSplit && (
+                      <button 
+                        type="button"
+                        onClick={() => setEditFormData({ ...editFormData, amountPaid: editFormData.totalAmount / 2 })}
+                        className="flex-1 px-3 py-2 text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-lg hover:bg-brand-500/20 transition-all uppercase tracking-wider"
+                      >
+                        Advance (₹{editFormData.totalAmount / 2})
+                      </button>
+                    )}
+                 </div>
               </div>
               
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-zinc-800">
+              <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-zinc-800">
                 <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors">Cancel</button>
                 <button type="submit" className="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors">Save Payment</button>
               </div>
@@ -406,7 +435,7 @@ export default function Finance() {
         isOpen={isSuperGateOpen}
         onClose={() => setIsSuperGateOpen(false)}
         onSubmit={(password) => pendingAction && pendingAction(password)}
-        targetActionLabel="Modifying or deleting a financial record"
+        targetActionLabel="deleting a financial record"
       />
       
       <AlertModal 
