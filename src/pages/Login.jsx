@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { LayoutDashboard, Loader2, ArrowRight } from "lucide-react";
+import tdsLogo from "../../public/favicon.ico";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -35,10 +36,10 @@ export default function Login() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl mb-6">
-          <LayoutDashboard className="h-8 w-8 text-brand-400" />
+          <img src={tdsLogo} alt="TDS Logo" className="h-12 w-12" />
         </div>
         <h2 className="text-3xl font-bold tracking-tight">
-          Sign in to TinyCRM
+          TinyDevSolutions CRM
         </h2>
         <p className="mt-2 text-sm text-zinc-400">
           Enter your admin credentials securely.
