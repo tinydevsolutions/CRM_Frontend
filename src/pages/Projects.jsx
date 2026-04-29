@@ -1,9 +1,34 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../lib/api";
-import { Plus, Search, Trash2, Edit3, Loader2, Briefcase, CheckCircle, Clock } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  Trash2, 
+  Edit3, 
+  Loader2, 
+  Briefcase, 
+  CheckCircle, 
+  Clock,
+  Layout,
+  Layers,
+  Zap,
+  Target,
+  ChevronRight,
+  Filter,
+  Calendar,
+  X
+} from "lucide-react";
 import SuperAdminModal from "../components/SuperAdminModal";
 import ConfirmModal from "../components/ConfirmModal";
 import AlertModal from "../components/AlertModal";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { createPortal } from "react-dom";
+
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
@@ -116,6 +141,11 @@ export default function Projects() {
     triggerSecuredAction((password) => executeDelete(confirmId, password));
   };
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+  };
+
   const openModal = (proj = null) => {
     if (proj) {
       setEditingId(proj._id);
@@ -136,17 +166,17 @@ export default function Projects() {
 
   const closeModal = () => setIsModalOpen(false);
 
-  const getStatusColor = (status) => {
-    const colors = {
-      "Planning": "bg-blue-500/10 text-blue-400 border-blue-500/20",
-      "Design": "bg-purple-500/10 text-purple-400 border-purple-500/20",
-      "Development": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-      "Testing": "bg-orange-500/10 text-orange-400 border-orange-500/20",
-      "Deployment": "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-      "Completed": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      "On Hold": "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
+  const getStatusConfig = (status) => {
+    const configs = {
+      "Planning": { color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20" },
+      "Design": { color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
+      "Development": { color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20" },
+      "Testing": { color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
+      "Deployment": { color: "text-cyan-400", bg: "bg-cyan-400/10", border: "border-cyan-400/20" },
+      "Completed": { color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
+      "On Hold": { color: "text-zinc-400", bg: "bg-zinc-400/10", border: "border-zinc-400/20" }
     };
-    return colors[status] || "bg-zinc-800 text-zinc-300";
+    return configs[status] || { color: "text-zinc-500", bg: "bg-zinc-500/10", border: "border-zinc-500/20" };
   };
 
   const filteredProjects = projects.filter(p => 
@@ -155,183 +185,252 @@ export default function Projects() {
   );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-500">
-      
-      {/* Header & Stats */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
+    <div className="space-y-10 h-full flex flex-col">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Project Pipeline</h1>
-          <p className="text-zinc-400">Track and manage development streams from design to deployment.</p>
+          <div className="flex items-center gap-2 text-brand-500 mb-1">
+             <div className="h-1 w-8 bg-brand-500 rounded-full"></div>
+             <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Operational Workflow</span>
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-white">Project Pipeline</h1>
+          <p className="mt-2 text-zinc-400">Orchestrate development streams and monitor deployment maturity.</p>
         </div>
         <button 
           onClick={() => openModal()}
-          className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-brand-500/20"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-xl shadow-brand-500/20 hover:bg-brand-500 hover:-translate-y-0.5 transition-all active:scale-95"
         >
-          <Plus className="h-5 w-5" />
-          New Project
+          <Plus className="h-4 w-4" />
+          Initialize Stream
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-brand-500/10 rounded-xl"><Briefcase className="h-6 w-6 text-brand-400" /></div>
-            <div><p className="text-sm font-medium text-zinc-400">Total Projects</p><h3 className="text-2xl font-bold text-white">{stats.total}</h3></div>
-          </div>
-        </div>
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-500/10 rounded-xl"><Clock className="h-6 w-6 text-amber-400" /></div>
-            <div><p className="text-sm font-medium text-zinc-400">Active Workflow</p><h3 className="text-2xl font-bold text-white">{stats.active}</h3></div>
-          </div>
-        </div>
-        <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-emerald-500/10 rounded-xl"><CheckCircle className="h-6 w-6 text-emerald-400" /></div>
-            <div><p className="text-sm font-medium text-zinc-400">Completed</p><h3 className="text-2xl font-bold text-white">{stats.completed}</h3></div>
-          </div>
-        </div>
+      {/* Grid Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+            { label: 'Total Streams', value: stats.total, icon: Layers, color: 'text-brand-400', bg: 'bg-brand-400/10' },
+            { label: 'Active Pipeline', value: stats.active, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-400/10' },
+            { label: 'Completed Deliveries', value: stats.completed, icon: Target, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+        ].map((s, idx) => (
+            <motion.div 
+                key={s.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="glass-card p-6 rounded-3xl group relative overflow-hidden"
+            >
+                <div className="flex items-center gap-4">
+                    <div className={cn("p-4 rounded-2xl", s.bg, s.color)}>
+                        <s.icon className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
+                        <p className="text-3xl font-bold text-white">{s.value}</p>
+                    </div>
+                </div>
+                <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700">
+                    <s.icon className="h-24 w-24" />
+                </div>
+            </motion.div>
+        ))}
       </div>
 
-      {/* Main Container */}
-      <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl backdrop-blur-xl shadow-2xl overflow-hidden">
-        
+      <div className="flex-1 rounded-3xl glass-card overflow-hidden flex flex-col shadow-2xl">
         {/* Toolbar */}
-        <div className="p-5 border-b border-zinc-800/60 flex flex-col sm:flex-row gap-4 justify-between items-center bg-zinc-900/50">
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
-            <input 
-              type="text" 
-              placeholder="Search projects or clients..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 transition-all"
-            />
-          </div>
+        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-white/[0.02]">
+            <div className="flex items-center gap-4">
+                <h3 className="font-bold text-lg text-white">Project Inventory</h3>
+                <span className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold text-zinc-500">{filteredProjects.length} ACTIVE</span>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="relative group flex-1 sm:flex-none">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500 group-focus-within:text-brand-400 transition-colors" />
+                    <input 
+                        type="text" 
+                        placeholder="Search matrix..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-zinc-950/50 border border-white/5 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all w-full sm:w-48 sm:focus:w-64" 
+                    />
+                </div>
+                <button className="flex items-center justify-center p-2 bg-white/5 border border-white/10 rounded-xl text-zinc-400 hover:text-white transition-all">
+                    <Filter className="h-4 w-4" />
+                </button>
+            </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          {loading ? (
-             <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 text-brand-500 animate-spin" /></div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-16 px-4">
-              <Briefcase className="h-12 w-12 text-zinc-600 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-zinc-300">No projects found</h3>
-              <p className="text-zinc-500 mt-1">Get started by creating a new tracking pipeline.</p>
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-zinc-900/80 border-b border-zinc-800/80 text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-                  <th className="px-6 py-4">Project</th>
-                  <th className="px-6 py-4">Client</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Progress</th>
-                  <th className="px-6 py-4">Deadline</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/60">
-                {filteredProjects.map((proj) => (
-                  <tr key={proj._id} className="hover:bg-zinc-800/20 transition-colors group">
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-zinc-100">{proj.projectName}</p>
-                    </td>
-                    <td className="px-6 py-4 text-zinc-400">{proj.clientName}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(proj.status)}`}>
-                        {proj.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-full bg-zinc-800 rounded-full h-2">
-                          <div className="bg-brand-500 h-2 rounded-full" style={{ width: `${proj.progress}%` }}></div>
-                        </div>
-                        <span className="text-xs text-zinc-400 font-medium">{proj.progress}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-zinc-400 text-sm">
-                      {proj.deadline ? new Date(proj.deadline).toLocaleDateString() : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 text-right flex justify-end gap-2">
-                       <button onClick={() => openModal(proj)} className="p-1.5 text-zinc-400 hover:text-brand-400 bg-zinc-800/50 rounded-md transition-colors" title="Edit"><Edit3 className="h-4 w-4" /></button>
-                       <button onClick={() => confirmDelete(proj._id)} className="p-1.5 text-zinc-400 hover:text-red-400 bg-zinc-800/50 rounded-md transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
-                    </td>
+        <div className="flex-1 overflow-auto custom-scrollbar">
+          <div className="min-w-[1000px]">
+            {loading ? (
+               <div className="flex flex-col justify-center items-center h-64">
+                   <Loader2 className="h-10 w-10 text-brand-500 animate-spin mb-4" />
+                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Synchronizing Pipeline...</span>
+               </div>
+            ) : filteredProjects.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="h-16 w-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 text-zinc-600">
+                  <Briefcase className="h-8 w-8" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Empty Pipeline</h3>
+                <p className="text-zinc-500 text-sm mt-1">Initialize a new project stream to begin tracking.</p>
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/[0.01] border-b border-white/5 text-[11px] uppercase tracking-wider text-zinc-500 font-bold">
+                    <th className="px-8 py-5">Stream Name</th>
+                    <th className="px-8 py-5">Stakeholder</th>
+                    <th className="px-8 py-5">Maturity Status</th>
+                    <th className="px-8 py-5">Completion</th>
+                    <th className="px-8 py-5">ETA</th>
+                    <th className="px-8 py-5 text-right">Operations</th>
                   </tr>
-                ))}
+                </thead>
+              <tbody className="divide-y divide-white/5">
+                {filteredProjects.map((proj, idx) => {
+                  const config = getStatusConfig(proj.status);
+                  return (
+                    <motion.tr 
+                        key={proj._id} 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="hover:bg-white/[0.03] transition-colors group"
+                    >
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-zinc-100 group-hover:text-brand-400 transition-colors">{proj.projectName}</span>
+                            <span className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-tighter">UID-{proj._id.slice(-6).toUpperCase()}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-zinc-300 font-medium">{proj.clientName}</td>
+                      <td className="px-8 py-6">
+                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase border", config.color, config.bg, config.border)}>
+                          {proj.status}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-col gap-2 w-32">
+                          <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${proj.progress}%` }}
+                                transition={{ duration: 1, ease: "easeOut", delay: 0.2 + idx * 0.05 }}
+                                className="bg-brand-500 h-full rounded-full shadow-[0_0_10px_rgba(var(--brand-500),0.5)]"
+                            />
+                          </div>
+                          <span className="text-[10px] text-zinc-500 font-bold tracking-widest">{proj.progress}% COMPLETE</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-2 text-zinc-400">
+                            <Calendar className="h-3 w-3" />
+                            <span className="text-xs font-medium">{proj.deadline ? new Date(proj.deadline).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'UNDEFINED'}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           <button onClick={() => openModal(proj)} className="p-2 text-zinc-500 hover:text-brand-400 bg-white/5 border border-white/5 rounded-xl transition-all"><Edit3 className="h-4 w-4" /></button>
+                           <button onClick={() => confirmDelete(proj._id)} className="p-2 text-zinc-500 hover:text-red-400 bg-white/5 border border-white/5 rounded-xl transition-all"><Trash2 className="h-4 w-4" /></button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
+          </div>
         </div>
       </div>
 
       {/* Add/Edit Modal */}
+      {createPortal(
+      <AnimatePresence>
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-              <h2 className="text-xl font-bold text-white">{editingId ? "Update Project Phase" : "New Pipeline Project"}</h2>
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-zinc-950/90 backdrop-blur-md"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            className="glass-card w-full max-w-lg rounded-3xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl"
+          >
+            <button onClick={closeModal} className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl transition-all">
+                <X className="h-5 w-5" />
+            </button>
+
+            <div className="mb-8">
+                <div className="h-12 w-12 bg-brand-500/20 rounded-2xl flex items-center justify-center mb-4 text-brand-500">
+                    <Briefcase className="h-6 w-6" />
+                </div>
+                <h2 className="text-3xl font-bold text-white tracking-tight">{editingId ? "Modify Stream" : "Initialize Matrix"}</h2>
+                <p className="text-zinc-500 mt-1">Configure parameters for project execution tracking.</p>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-sm font-medium text-zinc-400 mb-1.5">Project Name</label>
-                  <input required type="text" value={formData.projectName} onChange={(e) => setFormData({...formData, projectName: e.target.value})} className="w-full px-4 py-2.5 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500" placeholder="e.g. Website Redesign" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Project Identifier</label>
+                  <input required type="text" name="projectName" value={formData.projectName} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none transition-all" placeholder="e.g. Next-Gen App" />
                 </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-sm font-medium text-zinc-400 mb-1.5">Client Name</label>
-                  <input required type="text" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} className="w-full px-4 py-2.5 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500" placeholder="e.g. TechCorp" />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Stakeholder</label>
+                  <input required type="text" name="clientName" value={formData.clientName} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none transition-all" placeholder="e.g. Tech Systems" />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Phase Status</label>
-                <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2.5 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500">
-                  <option value="Planning">Planning</option>
-                  <option value="Design">Design</option>
-                  <option value="Development">Development</option>
-                  <option value="Testing">Testing</option>
-                  <option value="Deployment">Deployment</option>
-                  <option value="Completed">Completed</option>
-                  <option value="On Hold">On Hold</option>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Current Maturity Level</label>
+                <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none appearance-none cursor-pointer transition-all">
+                  <option value="Planning" className="bg-zinc-900 text-white">Planning & Analysis</option>
+                  <option value="Development" className="bg-zinc-900 text-white">Active Development</option>
+                  <option value="Testing" className="bg-zinc-900 text-white">Quality Assurance</option>
+                  <option value="Completed" className="bg-zinc-900 text-white">Operational / Live</option>
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-zinc-400 mb-1.5">Progress (%)</label>
-                    <input type="number" min="0" max="100" value={formData.progress} onChange={(e) => setFormData({...formData, progress: Number(e.target.value)})} className="w-full px-4 py-2.5 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Realized Progress (%)</label>
+                    <input type="number" min="0" max="100" name="progress" value={formData.progress} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none transition-all" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1.5">Deadline</label>
-                  <input type="date" value={formData.deadline} onChange={(e) => setFormData({...formData, deadline: e.target.value})} className="w-full px-4 py-2.5 bg-[color-scheme:dark] bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500" />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Maturity Target (Deadline)</label>
+                  <input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none transition-all" />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Description/Notes</label>
-                <textarea rows="3" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-100 focus:outline-none focus:border-brand-500 resize-none" placeholder="Project goals and requirements..."></textarea>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Operational Notes</label>
+                <textarea rows="3" name="description" value={formData.description} onChange={handleChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 outline-none resize-none transition-all" placeholder="Enter key milestones or blockers..."></textarea>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="flex-1 py-2.5 px-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-medium transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-brand-500/20">{editingId ? "Save Changes" : "Start Tracking"}</button>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-6 border-t border-white/5 mt-8">
+                <button type="button" onClick={closeModal} className="flex-1 py-3 px-6 text-sm font-bold text-zinc-500 hover:text-white transition-colors order-2 sm:order-1">Discard</button>
+                <button type="submit" className="flex-1 py-3 px-6 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-sm font-bold shadow-xl shadow-brand-500/20 transition-all active:scale-95 order-1 sm:order-2">
+                    {editingId ? "Commit Changes" : "Start Tracking"}
+                </button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+      )}
+      </AnimatePresence>,
+      document.body
       )}
 
       <ConfirmModal 
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Project"
-        message="Are you absolutely sure you want to permanently delete this project tracker? This prevents all future reporting."
-        confirmText="Yes, Delete Project"
+        title="Purge Stream"
+        message="Are you absolutely sure you want to permanently delete this project tracker? This action is irreversible."
+        confirmText="Yes, Purge Stream"
       />
 
       <SuperAdminModal 
@@ -350,3 +449,4 @@ export default function Projects() {
     </div>
   );
 }
+
