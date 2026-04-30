@@ -45,6 +45,13 @@ export default function Leads() {
 
   useEffect(() => {
     fetchLeads();
+
+    const handleNewLead = () => {
+      fetchLeads();
+    };
+
+    window.addEventListener("newLeadEvent", handleNewLead);
+    return () => window.removeEventListener("newLeadEvent", handleNewLead);
   }, []);
 
   const fetchLeads = async () => {

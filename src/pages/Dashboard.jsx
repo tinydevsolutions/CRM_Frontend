@@ -31,6 +31,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashData();
+
+    const handleNewLead = () => {
+      fetchDashData();
+    };
+
+    window.addEventListener("newLeadEvent", handleNewLead);
+    return () => window.removeEventListener("newLeadEvent", handleNewLead);
   }, []);
 
   const fetchDashData = async () => {

@@ -35,6 +35,43 @@ const DashboardLayout = () => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // Real-time Updates & Push Notifications via SSE
+  useEffect(() => {
+    // Request Notification permission
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+
+    const sseUrl = import.meta.env.VITE_API_URL 
+      ? `${import.meta.env.VITE_API_URL}/webhooks/stream` 
+      : "http://localhost:5000/api/webhooks/stream";
+      
+    const eventSource = new EventSource(sseUrl);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "newLead") {
+          // 1. Dispatch global event so page components can auto-refresh
+          window.dispatchEvent(new Event("newLeadEvent"));
+
+          // 2. Trigger native Push Notification
+          if (Notification.permission === "granted") {
+            new Notification("New Lead Alert! 🎉", {
+              body: `${data.lead.name} from ${data.lead.company || 'Unknown Company'} just submitted the onboarding form.`
+            });
+          }
+        }
+      } catch (err) {
+        console.error("SSE Parse Error:", err);
+      }
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("crm_user");
     navigate("/login");
@@ -54,10 +91,9 @@ const DashboardLayout = () => {
         <div className="p-8 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="absolute -inset-2 bg-brand-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <img src={logo} alt="Logo" className="h-10 w-auto relative grayscale group-hover:grayscale-0 transition-all duration-500" />
+              <div className="absolute"></div>
+              <img src={logo} alt="Logo" className="h-10 w-auto relative transition-all duration-500" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-white group-hover:text-brand-400 transition-colors duration-300">CRM<span className="text-brand-500">.</span></span>
           </Link>
           <button className="lg:hidden p-2 text-zinc-500 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
               <X className="h-6 w-6" />

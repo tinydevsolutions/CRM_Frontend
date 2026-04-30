@@ -2,17 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../lib/api";
-import { 
-  LayoutDashboard, 
-  Loader2, 
-  ArrowRight, 
-  ShieldCheck, 
-  User, 
-  Mail, 
-  Lock,
-  XCircle,
-  Fingerprint
-} from "lucide-react";
+import { Loader2, ArrowRight, ShieldCheck, XCircle, Fingerprint, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import tdsLogo from "../../public/favicon.ico";
 
 export default function Register() {
@@ -24,6 +14,7 @@ export default function Register() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "", inviteToken: token });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,165 +54,204 @@ export default function Register() {
     }
   };
 
+  const LeftPanel = () => (
+    <div className="hidden lg:flex lg:w-[45%] bg-zinc-950 relative overflow-hidden flex-col justify-center p-12 lg:p-20 border-r border-white/5">
+        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none" />
+        
+        <div className="relative z-10 max-w-md">
+            <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-zinc-900 border border-white/10 shadow-2xl mb-8 group">
+                <img src={tdsLogo} alt="TDS Logo" className="h-7 w-7 relative z-10" />
+            </div>
+            
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                Join the Network
+            </h1>
+            <p className="text-zinc-400 text-sm mb-12 leading-relaxed">
+                Create your proprietary account to securely access your business dashboard.
+            </p>
+
+            <div className="space-y-8">
+                {[
+                    { title: "Exclusive Access", desc: "Your credentials grant you entry to the private CRM network." },
+                    { title: "Encrypted Data", desc: "All client and project data is strictly protected." },
+                    { title: "Real-time Visibility", desc: "Instantly see invoices, leads, and analytics." }
+                ].map((item, idx) => (
+                    <motion.div 
+                      key={idx} 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 + 0.2 }}
+                      className="flex gap-4"
+                    >
+                        <div className="mt-0.5">
+                            <CheckCircle2 className="h-5 w-5 text-brand-500" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold text-white">{item.title}</h3>
+                            <p className="text-xs text-zinc-500 mt-1">{item.desc}</p>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
+    </div>
+  );
+
   if (validating) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center text-zinc-100">
-        <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="mb-8"
-        >
-            <Loader2 className="h-12 w-12 text-brand-500" />
-        </motion.div>
-        <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-[10px]"
-        >
-            Verifying Protocol...
-        </motion.p>
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 text-brand-500 animate-spin" />
+          <p className="text-zinc-500 font-medium text-sm">Verifying secure invitation...</p>
+        </div>
       </div>
     );
   }
 
   if (!tokenValid) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center text-zinc-100 px-4 text-center relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-red-500/10 blur-[100px] rounded-full pointer-events-none" />
-        
+      <div className="min-h-screen bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-zinc-100 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[40%] h-[40%] bg-red-500/10 blur-[120px] rounded-full" />
+        </div>
         <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="glass-card p-12 rounded-[3rem] max-w-md relative z-10 border-red-500/20"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="sm:mx-auto sm:w-full sm:max-w-md relative z-10"
         >
-            <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-red-500/10 text-red-500 mb-8 border border-red-500/20">
-                <XCircle className="h-10 w-10" />
+            <div className="bg-zinc-900/50 backdrop-blur-xl py-12 px-8 shadow-2xl rounded-3xl text-center border border-red-500/20">
+                <div className="h-16 w-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <XCircle className="h-8 w-8 text-red-500" />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-3">Invalid Invitation</h2>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+                    The registration token you provided is expired or invalid. Please request a new link from your administrator.
+                </p>
+                <Link to="/login" className="inline-flex items-center gap-2 text-sm font-bold text-brand-400 hover:text-brand-300 transition-colors">
+                    Return to Login <ArrowRight className="h-4 w-4" />
+                </Link>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-white mb-4">Access Denied</h2>
-            <p className="text-zinc-400 mb-10 leading-relaxed font-medium">
-                Your invitation signature is invalid or has expired. Public registration is locked to ensure system integrity.
-            </p>
-            <Link to="/login" className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all uppercase text-[10px] tracking-widest">
-                Return to Secure Login
-            </Link>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-zinc-100">
-      {/* Ambient Background */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-500/10 blur-[120px] rounded-full animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-      </div>
+    <div className="min-h-screen bg-zinc-950 flex flex-col lg:flex-row text-zinc-100">
+      
+      <LeftPanel />
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center"
-      >
-        <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-zinc-900 border border-white/10 shadow-2xl mb-8 relative group">
-            <div className="absolute inset-0 bg-brand-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <img src={tdsLogo} alt="TDS Logo" className="h-12 w-12 relative z-10" />
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 relative bg-zinc-950/50">
+        
+        {/* Mobile Header */}
+        <div className="lg:hidden text-center mb-10">
+            <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-zinc-900 border border-white/10 shadow-2xl mb-6 relative">
+                <img src={tdsLogo} alt="TDS Logo" className="h-7 w-7 relative z-10" />
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Join the Network</h2>
+            <p className="text-zinc-500 font-medium text-xs tracking-wide uppercase">TinyDevSolutions CRM</p>
         </div>
-        <h2 className="text-4xl font-bold tracking-tight text-white mb-2">Onboard Admin</h2>
-        <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold uppercase tracking-widest text-[10px]">
-            <ShieldCheck className="h-3 w-3" />
-            Invite Token Validated
-        </div>
-      </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        className="mt-10 sm:mx-auto sm:w-full sm:max-w-md relative z-10"
-      >
-        <div className="glass-card py-10 px-8 shadow-2xl sm:rounded-[2.5rem] sm:px-12 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent" />
-          
-          <AnimatePresence>
-          {error && (
-            <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold"
-            >
-              {error}
-            </motion.div>
-          )}
-          </AnimatePresence>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mx-auto w-full max-w-md"
+        >
+          <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 py-10 px-8 shadow-2xl rounded-3xl sm:px-10 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50" />
+            
+            <div className="mb-8 text-center">
+                <div className="flex items-center justify-center gap-2 text-brand-500 mb-2">
+                    <Fingerprint className="h-4 w-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Client Onboarding</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Create Your Profile</h3>
+                <p className="text-sm text-zinc-400">Complete registration to access your dashboard.</p>
+            </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Full Identity (Name)</label>
-              <div className="relative group">
+            <AnimatePresence>
+            {error && (
+              <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium text-center"
+              >
+                {error}
+              </motion.div>
+            )}
+            </AnimatePresence>
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Full Name</label>
                 <input
                   name="name"
                   type="text"
                   required
-                  className="block w-full rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3.5 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition-all text-white text-sm"
-                  placeholder="Official Name"
+                  className="block w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 placeholder-zinc-600 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all text-white text-sm"
+                  placeholder="John Doe"
                   onChange={handleChange}
                 />
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Work Endpoint (Email)</label>
-              <div className="relative group">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Email Address</label>
                 <input
                   name="email"
                   type="email"
                   required
-                  className="block w-full rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3.5 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition-all text-white text-sm"
-                  placeholder="name@tinydevsolutions.com"
+                  className="block w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 placeholder-zinc-600 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all text-white text-sm"
+                  placeholder="john@example.com"
                   onChange={handleChange}
                 />
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 ml-1">Secure Passphrase</label>
-              <div className="relative group">
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  className="block w-full rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3.5 placeholder-zinc-600 focus:border-brand-500/50 focus:outline-none focus:ring-2 focus:ring-brand-500/10 transition-all text-white text-sm"
-                  placeholder="••••••••"
-                  onChange={handleChange}
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Password</label>
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    className="block w-full rounded-xl border border-white/10 bg-white/[0.02] pl-4 pr-12 py-3 placeholder-zinc-600 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all text-white text-sm"
+                    placeholder="••••••••"
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="group relative flex w-full justify-center items-center gap-3 rounded-2xl bg-brand-600 py-4 px-4 text-sm font-bold text-white shadow-xl shadow-brand-500/20 hover:bg-brand-500 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-                    <>
-                      Initialize Admin Profile
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </button>
-            </div>
-          </form>
+              <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="group relative flex w-full justify-center items-center gap-2 rounded-xl bg-brand-500 hover:bg-brand-600 py-3.5 px-4 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+                      <>
+                        Initialize Profile
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
+              </div>
+            </form>
 
-          <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-center gap-2 text-zinc-500">
-              <ShieldCheck className="h-4 w-4 text-brand-500" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-center leading-relaxed">
-                  Secured via Fingerprint Hash <br /> & End-to-End Encryption
-              </span>
+            <div className="mt-8 flex items-center justify-center gap-2 text-zinc-500">
+                <ShieldCheck className="h-4 w-4 text-brand-500/70" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Encrypted Session</span>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
