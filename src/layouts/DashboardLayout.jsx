@@ -44,7 +44,7 @@ const DashboardLayout = () => {
 
     const sseUrl = import.meta.env.VITE_API_URL 
       ? `${import.meta.env.VITE_API_URL}/webhooks/stream` 
-      : "http://localhost:5000/api/webhooks/stream";
+      : "https://backend-crm-l6g0.onrender.com/api/webhooks/stream";
       
     const eventSource = new EventSource(sseUrl);
 
