@@ -33,7 +33,10 @@ export default function Leads() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", company: "", address: "", status: "New" });
+  const [formData, setFormData] = useState({ 
+    name: "", email: "", phone: "", company: "", address: "", status: "New",
+    businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+  });
 
   const [isSuperGateOpen, setIsSuperGateOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
@@ -135,10 +138,22 @@ export default function Leads() {
 
   const openModal = (lead = null) => {
     if (lead) {
-      setFormData({ name: lead.name, email: lead.email, phone: lead.phone, company: lead.company, address: lead.address || "", status: lead.status });
+      setFormData({ 
+        name: lead.name, email: lead.email, phone: lead.phone, company: lead.company, 
+        address: lead.address || "", status: lead.status,
+        businessDescription: lead.businessDescription || "",
+        goal: lead.goal || "",
+        serviceNeeded: lead.serviceNeeded || "",
+        hasWebsiteOrAds: lead.hasWebsiteOrAds || "",
+        budget: lead.budget || "",
+        timeline: lead.timeline || ""
+      });
       setEditingId(lead._id);
     } else {
-      setFormData({ name: "", email: "", phone: "", company: "", address: "", status: "New" });
+      setFormData({ 
+        name: "", email: "", phone: "", company: "", address: "", status: "New",
+        businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+      });
       setEditingId(null);
     }
     setIsModalOpen(true);
@@ -147,7 +162,10 @@ export default function Leads() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setFormData({ name: "", email: "", phone: "", company: "", address: "", status: "New" });
+    setFormData({ 
+      name: "", email: "", phone: "", company: "", address: "", status: "New",
+      businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+    });
   };
 
   const filteredLeads = leads.filter(l => 
@@ -408,7 +426,43 @@ export default function Leads() {
                         <textarea name="address" value={formData.address} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all resize-none" placeholder="Enter physical location" rows="2" />
                     </div>
 
+                    <div className="pt-4 pb-2 border-t border-white/5">
+                        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-1">Project Details</h3>
+                        <p className="text-xs text-zinc-500">Details sourced from Google Forms or added manually.</p>
+                    </div>
+
                     <div className="space-y-1.5">
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Business Description</label>
+                        <textarea name="businessDescription" value={formData.businessDescription} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all resize-none" placeholder="What does the business do?" rows="2" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Main Goal</label>
+                            <input type="text" name="goal" value={formData.goal} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="e.g. Increase sales" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Service Needed</label>
+                            <input type="text" name="serviceNeeded" value={formData.serviceNeeded} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="e.g. Website" />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Website/Ads?</label>
+                            <input type="text" name="hasWebsiteOrAds" value={formData.hasWebsiteOrAds} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Yes/No" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Budget</label>
+                            <input type="text" name="budget" value={formData.budget} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="e.g. ₹15k–50k" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Timeline</label>
+                            <input type="text" name="timeline" value={formData.timeline} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="e.g. Immediately" />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/5 space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Initial Engagement Status</label>
                         <select name="status" value={formData.status} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none">
                             <option value="New">New Lead</option>
