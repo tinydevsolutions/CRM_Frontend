@@ -35,7 +35,7 @@ export default function Leads() {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({ 
     name: "", email: "", phone: "", company: "", address: "", status: "New",
-    businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+    goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
   });
 
   const [isSuperGateOpen, setIsSuperGateOpen] = useState(false);
@@ -141,7 +141,6 @@ export default function Leads() {
       setFormData({ 
         name: lead.name, email: lead.email, phone: lead.phone, company: lead.company, 
         address: lead.address || "", status: lead.status,
-        businessDescription: lead.businessDescription || "",
         goal: lead.goal || "",
         serviceNeeded: lead.serviceNeeded || "",
         hasWebsiteOrAds: lead.hasWebsiteOrAds || "",
@@ -152,7 +151,7 @@ export default function Leads() {
     } else {
       setFormData({ 
         name: "", email: "", phone: "", company: "", address: "", status: "New",
-        businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+        goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
       });
       setEditingId(null);
     }
@@ -164,7 +163,7 @@ export default function Leads() {
     setEditingId(null);
     setFormData({ 
       name: "", email: "", phone: "", company: "", address: "", status: "New",
-      businessDescription: "", goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
+      goal: "", serviceNeeded: "", hasWebsiteOrAds: "", budget: "", timeline: ""
     });
   };
 
@@ -399,8 +398,8 @@ export default function Leads() {
                             <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Enter full name" />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Corporate Entity</label>
-                            <input type="text" name="company" value={formData.company} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Enter company name" />
+                            <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Business Name / Description</label>
+                            <input type="text" name="company" value={formData.company} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="Enter business name or description" />
                         </div>
                     </div>
                     
@@ -429,11 +428,6 @@ export default function Leads() {
                     <div className="pt-4 pb-2 border-t border-white/5">
                         <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-1">Project Details</h3>
                         <p className="text-xs text-zinc-500">Details sourced from Google Forms or added manually.</p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Business Description</label>
-                        <textarea name="businessDescription" value={formData.businessDescription} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all resize-none" placeholder="What does the business do?" rows="2" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -465,12 +459,12 @@ export default function Leads() {
                     <div className="pt-4 border-t border-white/5 space-y-1.5">
                         <label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Initial Engagement Status</label>
                         <select name="status" value={formData.status} onChange={handleInputChange} className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none">
-                            <option value="New">New Lead</option>
-                            <option value="Contacted">First Contact</option>
-                            <option value="Qualified">Qualified Prospect</option>
-                            <option value="Proposal">Proposal Phase</option>
-                            <option value="Won">Deal Secured (Won)</option>
-                            <option value="Lost">Deal Terminated (Lost)</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="New">New Lead</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="Contacted">First Contact</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="Qualified">Qualified Prospect</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="Proposal">Proposal Phase</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="Won">Deal Secured (Won)</option>
+                            <option className="bg-zinc-900 text-zinc-100" value="Lost">Deal Terminated (Lost)</option>
                         </select>
                     </div>
                     
