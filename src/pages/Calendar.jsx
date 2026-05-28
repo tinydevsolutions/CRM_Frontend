@@ -19,9 +19,12 @@ export default function Calendar() {
   const [meetings, setMeetings] = useState([]);
   const [activeTab, setActiveTab] = useState("scheduler");
 
-  // Fetch dynamic meetings on load
+  // Fetch dynamic meetings on load and listen for real-time updates
   useEffect(() => {
     fetchMeetings();
+
+    window.addEventListener("newLeadEvent", fetchMeetings);
+    return () => window.removeEventListener("newLeadEvent", fetchMeetings);
   }, []);
 
   const fetchMeetings = async () => {
