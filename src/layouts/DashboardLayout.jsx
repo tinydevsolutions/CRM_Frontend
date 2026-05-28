@@ -12,6 +12,8 @@ import {
   Briefcase,
   Search,
   ChevronRight,
+  ChevronDown,
+  Calendar,
   Menu,
   X
 } from "lucide-react";
@@ -23,6 +25,7 @@ function cn(...inputs) {
 }
 
 import logo from '../../public/tdsLogo.png'
+import avatar from '../assets/admin_avatar.png'
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -82,6 +85,7 @@ const DashboardLayout = () => {
     { name: "Clients", path: "/leads", icon: Users },
     { name: "Projects", path: "/projects", icon: Briefcase },
     { name: "Finance", path: "/finance", icon: CreditCard },
+    { name: "Calendar", path: "/calendar", icon: Calendar },
     { name: "Agreements", path: "/agreements", icon: FileSignature },
     ...(user?.role === "superadmin" ? [{ name: "Settings", path: "/settings", icon: Settings }] : []),
   ];
@@ -149,8 +153,8 @@ const DashboardLayout = () => {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-zinc-100 truncate">{user?.name || "Admin User"}</p>
-                <p className="text-[10px] text-zinc-500 truncate">{user?.email || "admin@tinydev.com"}</p>
+                <p className="text-xs font-semibold text-zinc-100 truncate">{user?.name === "Navaneetha Krishnan" || user?.name === "Super Admin" ? "Navaneetha" : user?.name || "Admin User"}</p>
+                <p className="text-[10px] text-zinc-500 truncate">{user?.role === "superadmin" ? "Admin" : user?.role || "Admin"}</p>
               </div>
             </div>
             <button 
@@ -228,11 +232,17 @@ const DashboardLayout = () => {
               <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-brand-500 border-2 border-zinc-950 group-hover:scale-125 transition-transform"></span>
             </button>
             <div className="h-8 w-[1px] bg-white/5 mx-1 md:mx-2"></div>
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded-full bg-white/5 border border-white/5">
-                <div className="h-7 w-7 rounded-full bg-brand-500/20 flex items-center justify-center text-[10px] font-bold text-brand-400">
-                    {user?.role?.charAt(0).toUpperCase() || "A"}
+            <div className="flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-white/5 border border-white/5">
+                <img 
+                  src={avatar} 
+                  alt="Admin Avatar" 
+                  className="h-8 w-8 rounded-full border border-white/10 object-cover" 
+                />
+                <div className="flex flex-col text-left">
+                    <span className="text-xs font-bold text-zinc-100">{user?.name === "Navaneetha Krishnan" || user?.name === "Super Admin" ? "Navaneetha" : user?.name || "Navaneetha"}</span>
+                    <span className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">{user?.role === "superadmin" ? "Admin" : user?.role || "Admin"}</span>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 pr-2 hidden xs:block">{user?.role || "Admin"}</span>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-500 ml-1 hidden xs:block" />
             </div>
           </div>
         </header>

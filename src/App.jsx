@@ -12,6 +12,7 @@ import Agreements from "./pages/Agreements";
 import InvoiceView from "./pages/InvoiceView";
 import AgreementView from "./pages/AgreementView";
 import Projects from "./pages/Projects";
+import Calendar from "./pages/Calendar";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/leads" element={<Leads />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/agreements" element={<Agreements />} />
 
             {/* Super Admin Only */}
